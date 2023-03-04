@@ -103,7 +103,9 @@ def backtrack_qr_codes(size, line, column, num_black_each_line, num_black_each_c
     count_res = 0
     def check_qr_code(line, column):
         nonlocal matrix, matrix_to_print, count_res
-        if (line != size and column != size) and not verify_matrix(line, column):
+        if (line >= size and column >= size) and not verify_matrix(line, column):
+            print(line,column,size)
+            print("oiiii")
             return False
         if line == size:
             if check_full_matrix():
@@ -121,7 +123,7 @@ def backtrack_qr_codes(size, line, column, num_black_each_line, num_black_each_c
         return False
 
     def check_full_matrix():
-        if check_full_black_each_line() and check_full_black_each_column() and check_black_each_diagonal() and check_full_color_trans_each_line() and check_full_color_trans_each_column():
+        if check_full_black_each_line() and check_full_black_each_column() and check_black_each_diagonal() and check_full_color_trans_each_line() and check_full_color_trans_each_column and check_full_black_each_quadrant():
             return True
         return False
 
