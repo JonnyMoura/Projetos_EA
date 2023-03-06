@@ -109,9 +109,11 @@ def backtrack_qr_codes(size, line, column, num_black_each_line, num_black_each_c
     db_diff=[[0] for _ in range(2)]
     def check_qr_code(line, column,num_black_line_diff,num_black_column_diff,lt_diff,ct_diff,qb_diff,db_diff):
         nonlocal matrix, matrix_to_print, count_res
-        if (line >= size and column >= size) and  verify_matrix(num_black_line_diff,num_black_column_diff,lt_diff,ct_diff,qb_diff,db_diff):
+        if (line >= size and column >= size) or verify_matrix(line, column,num_black_line_diff,num_black_column_diff,lt_diff,ct_diff,qb_diff,db_diff):
+            print("fhhfh")
             print(line,column,size)
             return False
+        print("ierier")
         if line == size:
             if check_full_matrix():
                 matrix_to_print = [row[:] for row in matrix] # deep copy matrix
@@ -149,13 +151,17 @@ def backtrack_qr_codes(size, line, column, num_black_each_line, num_black_each_c
         check_qr_code(line, column + 1,num_black_line_diff,num_black_column_diff,lt_diff,ct_diff,qb_diff,db_diff)
         return False
 
+
+
+
     def check_full_matrix():
         if check_full_black_each_line() and check_full_black_each_column() and check_black_each_diagonal() and check_full_color_trans_each_line() and check_full_color_trans_each_column and check_full_black_each_quadrant():
             return True
         return False
 
-    def verify_matrix(l,c,lt_d,ct_d,qb_d,db_d):
-        if(l>num_black_each_line) or (c>num_black_each_column) or (lt_d>lt) or (ct_d>ct) or (qb_d>qb) or (db_d>db):
+    def verify_matrix(line, col, l,c,lt_d,ct_d,qb_d,db_d):
+        print("jfjf")
+        if(l[line]>num_black_each_line[line]) or (c[col]>num_black_each_column[col]) or (lt_d[line]>lt[line]) or (ct_d[col]>ct[col]) or (qb_d[get_quadrant(line, col)]>qb[get_quadrant(line, col)]) or (db_d[get_diagonal(line, col)]>db[get_diagonal(line, col)]):
             return False
         return True
 
@@ -288,7 +294,7 @@ def backtrack_qr_codes(size, line, column, num_black_each_line, num_black_each_c
             return False
 
         return True
-    
+
     check_qr_code(0, 0,num_black_line_diff,num_black_column_diff,lt_diff,ct_diff,qb_diff,db_diff)
     return matrix_to_print, count_res
 
