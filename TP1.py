@@ -101,19 +101,21 @@ def backtrack_qr_codes(size, line, column, num_black_each_line, num_black_each_c
     matrix = [[0] * size for _ in range(size)]  # matriz de zeros do tamanho especificado
     matrix_to_print = [[0] * size for _ in range(size)]
     count_res = 0
-    num_black_line_diff=[[0] for _ in range(size)]
-    num_black_column_diff=[[0] for _ in range(size)]
-    lt_diff=[[0] for _ in range(size)]
-    ct_diff=[[0] for _ in range(size)]
-    qb_diff=[[0] for _ in range(4)]
-    db_diff=[[0] for _ in range(2)]
+    num_black_line_diff=[0]*size
+    num_black_column_diff=[0]*size
+    lt_diff=[0]*size
+    ct_diff=[0]*size
+    qb_diff=[0]*4
+    db_diff=[0]*2
     def check_qr_code(line, column,num_black_line_diff,num_black_column_diff,lt_diff,ct_diff,qb_diff,db_diff):
         nonlocal matrix, matrix_to_print, count_res
-        if (line >= size and column >= size) or verify_matrix(line, column,num_black_line_diff,num_black_column_diff,lt_diff,ct_diff,qb_diff,db_diff):
-            print("fhhfh")
-            print(line,column,size)
+        print( verify_matrix(line, column,num_black_line_diff,num_black_column_diff,lt_diff,ct_diff,qb_diff,db_diff))
+        if (line >= size and column >= size) or not verify_matrix(line, column,num_black_line_diff,num_black_column_diff,lt_diff,ct_diff,qb_diff,db_diff):
+            
+            
+            ##print(line,column,size)
             return False
-        print("ierier")
+       
         if line == size:
             if check_full_matrix():
                 matrix_to_print = [row[:] for row in matrix] # deep copy matrix
@@ -125,26 +127,26 @@ def backtrack_qr_codes(size, line, column, num_black_each_line, num_black_each_c
             return True
         num_black_line_diff[line] += 1
         num_black_column_diff[column] += 1
-        if column - 1 < 0 and ((matrix[line][column] == 1 and matrix[line][column-1] == 0) or (matrix[line][column] == 0 and matrix[line][column-1] == 1)):
+        if column - 1 >= 0 and ((matrix[line][column] == 1 and matrix[line][column-1] == 0) or (matrix[line][column] == 0 and matrix[line][column-1] == 1)):
              lt_diff[line] += 1
-        if line -1 < 0 and ((matrix[line][column] == 1 and matrix[line - 1][column] == 0) or (matrix[line][column] == 0 and matrix[line-1][column] == 1)):
+        if line -1 >= 0 and ((matrix[line][column] == 1 and matrix[line - 1][column] == 0) or (matrix[line][column] == 0 and matrix[line-1][column] == 1)):
              ct_diff[column] += 1
         
         qb_diff[get_quadrant(line, column)] += 1
-        if(get_diagonal!=-1):
+        if(get_diagonal(line,column)!=-1):
             db_diff[get_diagonal(line, column)] += 1
         matrix[line][column] = 1
         check_qr_code(line, column + 1,num_black_line_diff,num_black_column_diff,lt_diff,ct_diff,qb_diff,db_diff)
 
         num_black_line_diff[line] -= 1
         num_black_column_diff[column] -= 1
-        if column - 1 < 0 and ((matrix[line][column] == 1 and matrix[line][column-1] == 0) or (matrix[line][column] == 0 and matrix[line][column-1] == 1)):
+        if column - 1 >= 0 and ((matrix[line][column] == 1 and matrix[line][column-1] == 0) or (matrix[line][column] == 0 and matrix[line][column-1] == 1)):
              lt_diff[line] -= 1
-        if line -1 < 0 and ((matrix[line][column] == 1 and matrix[line - 1][column] == 0) or (matrix[line][column] == 0 and matrix[line-1][column] == 1)):
+        if line -1 >= 0 and ((matrix[line][column] == 1 and matrix[line - 1][column] == 0) or (matrix[line][column] == 0 and matrix[line-1][column] == 1)):
              ct_diff[column] -= 1
         
         qb_diff[get_quadrant(line, column)] -= 1
-        if(get_diagonal!=-1):
+        if(get_diagonal(line, column)!=-1):
             db_diff[get_diagonal(line, column)] -= 1
 
         matrix[line][column] = 0
@@ -160,7 +162,12 @@ def backtrack_qr_codes(size, line, column, num_black_each_line, num_black_each_c
         return False
 
     def verify_matrix(line, col, l,c,lt_d,ct_d,qb_d,db_d):
-        print("jfjf")
+        '''print(get_quadrant(line, col))
+        print(get_diagonal(line, col))
+        print(line, col, l,c,lt_d,ct_d,qb_d,db_d)
+        print(num_black_each_line,num_black_each_column,lt,ct,qb,db)
+        print("jfjf")'''
+
         if(l[line]>num_black_each_line[line]) or (c[col]>num_black_each_column[col]) or (lt_d[line]>lt[line]) or (ct_d[col]>ct[col]) or (qb_d[get_quadrant(line, col)]>qb[get_quadrant(line, col)]) or (db_d[get_diagonal(line, col)]>db[get_diagonal(line, col)]):
             return False
         return True
@@ -294,6 +301,7 @@ def backtrack_qr_codes(size, line, column, num_black_each_line, num_black_each_c
             return False
 
         return True
+
 
     check_qr_code(0, 0,num_black_line_diff,num_black_column_diff,lt_diff,ct_diff,qb_diff,db_diff)
     return matrix_to_print, count_res
