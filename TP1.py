@@ -95,7 +95,7 @@ def generate_qr_codes(n, lb, cb, lt, ct, qb, db):
 
     backtrack(0, 0, lb.copy(), cb.copy(), lt.copy(), ct.copy(), qb.copy(), db.copy())
     return solutions
-'''''
+
 
 def pre_processamento(matriz, size, lb, cb, qb, db):
     for i in range(size):
@@ -113,7 +113,118 @@ def pre_processamento(matriz, size, lb, cb, qb, db):
                     matriz[i][j] = 1
                 else:
                     matriz[i][j] = 0
+'''''
 
+
+def get_quadrant(row: int, col: int) -> int:
+    if row <= math.floor(N / 2) and col > math.floor(N / 2):
+        return 0
+    elif row <= math.floor(N / 2) and col <= math.floor(N / 2):
+        return 1
+    elif row > math.floor(N / 2) and col <= math.floor(N / 2):
+        return 2
+    else:
+        return 3
+
+
+def get_diagonal(row: int, col: int) -> int:
+    if row == col:
+        return 0
+    elif col == N - row + 1:
+        return 1
+    else:
+        return -1
+
+def pre_processamento(matriz, size, lb, cb, lt, ct, qb, db):
+    for i in range(size):
+        if lb[i] == size or lb[i] == 0:
+            if lt[i] == 0:
+                for j in range(size):
+                    if (qb[get_quadrant(i + 1, j + 1)] != 0 and lb[i] == size) and (
+                            (db[0] == size or db[1] == size) and lb[i] != 0):
+                        if lb[i] == size:
+                            matriz[i][j] = 1
+                        else:
+                            matriz[i][j] = 0
+                    else:
+                        return False
+            else:
+                return False
+
+    for j in range(size):
+        if cb[j] == size or cb[j] == 0:
+            if ct[j] == 0:
+                for i in range(size):
+                    if (qb[get_quadrant(i + 1, j + 1)] != 0 and cb[j] == size) and (
+                            (db[0] == size or db[1] == size) and cb[j] != 0):
+                        if cb[j] == size:
+                            matriz[i][j] = 1
+                        else:
+                            matriz[i][j] = 0
+                    else:
+                        return False
+            else:
+                return False
+
+    for i in range(4):
+        if qb[i] == (math.floor(size / 2)) ** 2 or qb[i] == 0:
+            for k in range(size):
+                for j in range(size):
+                    if (qb[i] == size):
+                        if (i == 0):
+                            if get_quadrant(k + 1, j + 1) == 0:
+                                matriz[k][j] = 1
+                            if get_quadrant(j + 1, i + 1) == 0:
+                                matriz[j][k] = 1
+                        elif (i == 1):
+                            if get_quadrant(k + 1, j + 1) == 1:
+                                matriz[k][j] = 1
+                            if get_quadrant(j + 1, k + 1) == 1:
+                                matriz[j][k] = 1
+                        elif (i == 2):
+                            if get_quadrant(k + 1, j + 1) == 2:
+                                matriz[k][j] = 1
+                            if get_quadrant(j + 1, k + 1) == 2:
+                                matriz[j][k] = 1
+                        elif (i == 3):
+                            if get_quadrant(k + 1, j + 1) == 3:
+                                matriz[k][j] = 1
+                            if get_quadrant(j + 1, k + 1) == 3:
+                                matriz[j][k] = 1
+                    elif (qb[i] == 0):
+                        if (i == 0):
+                            if get_quadrant(k + 1, j + 1) == 0:
+                                matriz[k][j] = 0
+                            if get_quadrant(j + 1, k + 1) == 0:
+                                matriz[j][k] = 0
+                        elif (i == 1):
+                            if get_quadrant(k + 1, j + 1) == 1:
+                                matriz[k][j] = 0
+                            if get_quadrant(j, k) == 1:
+                                matriz[j][k] = 0
+                        elif (i == 2):
+                            if get_quadrant(k + 1, j + 1) == 2:
+                                matriz[k][j] = 0
+                            if get_quadrant(j + 1, k + 1) == 2:
+                                matriz[j][k] = 0
+                        elif (i == 3):
+                            if get_quadrant(k + 1, j + 1) == 3:
+                                matriz[k][j] = 0
+                            if get_quadrant(j + 1, k + 1) == 3:
+                                matriz[j][k] = 0
+    for i in range(2):
+        if db[i] == size or db[i] == 0:
+            for j in range(size):
+                if (i == 0):
+                    if (db[i] == size):
+                        matriz[j][j] = 1
+                    elif (db[i] == 0):
+                        matriz[j][j] = 0
+                else:
+                    if (db[i] == size):
+                        matriz[size - j - 1][j] = 1
+                    elif (db[i] == 0):
+                        matriz[size - j - 1][j] = 0
 
 
 
@@ -124,8 +235,9 @@ def backtrack_qr_codes(size, line, column, num_black_each_line, num_black_each_c
     matrix = [[-1] * size for _ in range(size)]  # matriz de zeros do tamanho especificado
     matrix_to_print = [[0] * size for _ in range(size)]
     count_res = 0
-    pre_processamento(matrix,size,num_black_each_line,num_black_each_column,qb,db)
-    #print(matrix)
+    pre_processamento(matrix,size,num_black_each_line,num_black_each_column, lt, ct, qb,db)
+    print(matrix)
+    print_qr_code(matrix)
     num_black_line_diff=[0]*size
     num_black_column_diff=[0]*size
     lt_diff=[0]*size
@@ -137,7 +249,6 @@ def backtrack_qr_codes(size, line, column, num_black_each_line, num_black_each_c
 
         if line == size:
             if check_full_matrix():
-                print(matrix)
                 matrix_to_print =[row[:] for row in matrix] # deep copy matrix
                 count_res += 1
                 return True
@@ -150,6 +261,13 @@ def backtrack_qr_codes(size, line, column, num_black_each_line, num_black_each_c
             return False
 
         if column == size:
+            count = 0
+            for j in range(size):
+                if j + 1 <= size - 1 and ((matrix[line][j] == 1 and matrix[line][j + 1] == 0) or (
+                        matrix[line][j] == 0 and matrix[line][j + 1] == 1)):
+                    count += 1
+            if count != lt[line]:
+                return False
             check_qr_code(line + 1, 0,num_black_line_diff,num_black_column_diff,lt_diff,ct_diff,qb_diff,db_diff)
             return True
         if matrix[line][column] != -1:
@@ -252,23 +370,6 @@ def backtrack_qr_codes(size, line, column, num_black_each_line, num_black_each_c
                 return False
         return True
 
-    def get_quadrant(row: int, col: int) -> int:
-        if row <= math.floor(N / 2) and col > math.floor(N / 2):
-            return 0
-        elif row <= math.floor(N / 2) and col <= math.floor(N / 2):
-            return 1
-        elif row > math.floor(N / 2) and col <= math.floor(N / 2):
-            return 2
-        else:
-            return 3
-        
-    def get_diagonal(row: int, col: int) -> int:
-        if row == col:
-            return 0
-        elif col == N-row+1:
-            return 1
-        else:
-            return -1
 
     def check_full_black_each_quadrant():
         for q in range(4):
@@ -310,13 +411,49 @@ def backtrack_qr_codes(size, line, column, num_black_each_line, num_black_each_c
     check_qr_code(0, 0,num_black_line_diff,num_black_column_diff,lt_diff,ct_diff,qb_diff,db_diff)
     return matrix_to_print, count_res
 
+def print_qr_code(matrix):
+    # define os caracteres de canto, borda e espaço vazio
+    corner = "+"
+    border = "|"
+    empty = " "
+
+    # define o tamanho da matriz
+    rows = len(matrix)
+    cols = len(matrix[0])
+
+    # cria a linha superior da matriz
+    top_row = corner + "-" * cols + corner
+
+    # imprime a linha superior da matriz
+    print(top_row)
+
+    # itera sobre as linhas da matriz e as imprime
+    for i in range(rows):
+        row_string = border
+
+        for j in range(cols):
+            if matrix[i][j] == 1:
+                row_string += "#"
+            else:
+                row_string += empty
+
+        row_string += border
+        print(row_string)
+
+    # cria a linha inferior da matriz
+    bottom_row = corner + "-" * cols + corner
+
+    # imprime a linha inferior da matriz
+    print(bottom_row)
+
+
 
 if __name__ == "__main__":
 
     try:
 
-         
-            while True:
+            num = int(readln())
+            for _ in range(num):
                 N=int(readln())
                 lb=list(map(int, readln().split()))
                 cb=list(map(int, readln().split()))
@@ -330,10 +467,16 @@ if __name__ == "__main__":
                 else:
                     
                     #print(is_valid_encoding(N, lb, cb, lt, ct, qb, db))
-                    qrcodes ,n_qr_codes = backtrack_qr_codes(N,0,0, lb, cb,lt,ct,qb,db)
-                    #print(len(n_qr_codes))
-                    print("aquiiiii", n_qr_codes)
-                    print(qrcodes)
+                    qrcode ,n_qr_codes = backtrack_qr_codes(N,0,0, lb, cb,lt,ct,qb,db)
+                    if n_qr_codes == 1:
+                        print("VALID: 1 QR Code generated!")
+                        print_qr_code(qrcode)
+                    elif n_qr_codes > 1:
+                        print(f"INVALID: {n_qr_codes} QR Codes generated!")
+                    elif n_qr_codes == 0:
+                        print("DEFECT: No QR Code generated!")
+
+
 
                                      
     except :
