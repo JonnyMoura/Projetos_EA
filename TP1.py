@@ -16,107 +16,34 @@ def is_valid_encoding(N, lb, cb, lt, ct, qb, db):
     if sum(lb) != sum(cb):
         return False
     '''''
-    for i in range(N):
-
-        if lt[i] < abs(lb[i] - (N-lb[i])) or ct[i] < abs(cb[i] - (N-cb[i])):
+    # Verifica se o número de células pretas em cada linha e coluna é válido
+    for j in range(N):
+        if lb[j] > N or cb[j] > N or lb[j] + cb[j] > 2 * N:
             return False
 
-        if(0>lb[i]>N or 0>cb[i]>N or  0>lt[i]>N-1 or 0>ct[i]>N-1 ):
-            return False
-        if(i<=1):
-            if(0>db[i]>N):
-                return False
-        if(i<=3):
-            if(0>qb[i]>(math.floor((N/2)+1)**(2))):
-                return False
-
-    return True
-'''''
-def generate_qr_codes(n, lb, cb, lt, ct, qb, db):
-
-    grid = [[None for j in range(n)] for i in range(n)]
-    solutions = []
-
-    def backtrack(row: int, col: int, black_rows: List[int], black_cols: List[int], color_rows: List[int], color_cols: List[int], quadrants: List[int], diagonals: List[int]):
-
-        # If we reached the last column, move to the next row
-        if col == n:
-            backtrack(row + 1, 0, black_rows, black_cols, color_rows, color_cols, quadrants, diagonals)
-            return True
-        #print(row, col)
-        # If we reached the last row, we found a valid solution
-        if row == n:
-            solutions.append(grid)
-            return True
-
-        if black_rows[row] <= 0 and black_cols[col] <= 0 and color_rows[row] <= 0 and color_cols[col] <= 0 and quadrants[
-            get_quadrant(row, col)] <= 0 and diagonals[get_diagonal(row, col)] <= 0:
+    # Verifica se o número de transições de cor em cada linha e coluna é válido
+    for j in range(N):
+        if lt[j] > N - 1 or ct[j] > N - 1:
             return False
 
-        if (row == 0 or grid[row - 1][col] != 1) and (col == 0 or grid[row][col - 1] != 1):
-            black_rows[row] -= 1
-            black_cols[col] -= 1
-            color_rows[row] -= 1
-            color_cols[col] -= 1
-            quadrants[get_quadrant(row, col)] -= 1
-            diagonals[get_diagonal(row, col)] -= 1
-            grid[row][col] = 1
-            backtrack(row, col+1, black_rows, black_cols, color_rows, color_cols, quadrants, diagonals)
-            black_rows[row] += 1
-            black_cols[col] += 1
-            color_rows[row] += 1
-            color_cols[col] += 1
-            quadrants[get_quadrant(row, col)] += 1
-            diagonals[get_diagonal(row, col)] += 1
-            grid[row][col] = 0
-            backtrack(row, col + 1, black_rows, black_cols, color_rows, color_cols, quadrants, diagonals)
+    # Verifica se o número de células pretas em cada quadrante e diagonal é válido
+    q_sum = [qb[0] + qb[1], qb[1] + qb[2], qb[2] + qb[3], qb[3] + qb[0]]
+    if any(q_sum[i] > N * (N - 1) / 4 or q_sum[i] + db[i % 2] > N * (N + 1) / 2 for i in range(4)):
         return False
 
+    # Verifica se o número total de células pretas é válido
+    total_blacks = sum(lb)
+    if total_blacks != N * (N - 1) / 2:
+        return False
 
+    # Verifica se as restrições de adjacência são satisfeitas
+    for j in range(N - 1):
+        if lb[j] + lb[j + 1] + cb[j] + cb[j + 1] == 0 or lb[j] + lb[j + 1] + cb[j] + cb[j + 1] == 4:
+           return False
 
+    return True
 
-    def get_quadrant(row: int, col: int) -> int:
-        if row <= N//2 and col > N//2:
-            return 0
-        elif row <= N//2 and col <= N//2:
-            return 1
-        elif row > N//2 and col <= N//2:
-            return 2
-        else:
-            return 3
-
-    def get_diagonal(row: int, col: int) -> int:
-        if row == col:
-            return 0
-        elif row == N-col+1:
-            return 1
-        else:
-            return -1
-
-    backtrack(0, 0, lb.copy(), cb.copy(), lt.copy(), ct.copy(), qb.copy(), db.copy())
-    return solutions
-
-
-def pre_processamento(matriz, size, lb, cb, qb, db):
-    for i in range(size):
-        if lb[i] == size or lb[i] == 0:
-            for j in range(size):
-                if lb[i] == size:
-                    matriz[i][j] = 1
-                else:
-                    matriz[i][j] = 0
-
-    for j in range(size):
-        if cb[j] == size or cb[j] == 0:
-            for i in range(size):
-                if cb[j] == size:
-                    matriz[i][j] = 1
-                else:
-                    matriz[i][j] = 0
-'''''
-
-
-def get_quadrant(row: int, col: int) -> int:
+def get_quadrant(N,row: int, col: int) -> int:
     if row <= math.floor(N / 2) and col > math.floor(N / 2):
         return 0
     elif row <= math.floor(N / 2) and col <= math.floor(N / 2):
@@ -127,7 +54,7 @@ def get_quadrant(row: int, col: int) -> int:
         return 3
 
 
-def get_diagonal(row: int, col: int) -> int:
+def get_diagonal(N,row: int, col: int) -> int:
     if row == col:
         return 0
     elif col == N - row + 1:
@@ -141,20 +68,21 @@ def pre_processamento(matriz, size, lb, cb, lt, ct, qb, db):
         if 0 > lt[i] > size - 1 or 0 > ct[i] > size - 1 or 0 > lb[i] > size or 0 > cb[i] > size:
             return False
 
+
     for i in range(size):
         if lb[i] == size or lb[i] == 0:
             if lt[i] == 0:
                 for j in range(size):
-                    if ((qb[get_quadrant(i + 1, j + 1)] != 0 and lb[i] == size) or (
-                            qb[get_quadrant(i + 1, j + 1)] == 0 and lb[i] != size)) and (
-                            ((db[0] == size or db[1] == size) and lb[i] != 0) or (
-                            (db[0] == 0 or db[1] == 0) and lb[i] != N)):
-                        if lb[i] == size:
-                            matriz[i][j] = 1
-                        else:
-                            matriz[i][j] = 0
+                    #if ((qb[get_quadrant(size,i + 1, j + 1)] != 0 and lb[i] == size) or (
+                    #        qb[get_quadrant(size,i + 1, j + 1)] == 0 and lb[i] != size)) and (
+                    #        ((db[0] == size or db[1] == size) and lb[i] != 0) or (
+                    #        (db[0] == 0 or db[1] == 0) and lb[i] != N)):
+                    if lb[i] == size:
+                        matriz[i][j] = 1
                     else:
-                        return False
+                        matriz[i][j] = 0
+                    #else:
+                    #    return False
             else:
                 return False
 
@@ -162,16 +90,16 @@ def pre_processamento(matriz, size, lb, cb, lt, ct, qb, db):
         if cb[j] == size or cb[j] == 0:
             if ct[j] == 0:
                 for i in range(size):
-                    if ((qb[get_quadrant(i + 1, j + 1)] != 0 and cb[j] == size) or (
-                            qb[get_quadrant(i + 1, j + 1)] == 0 and cb[j] != size)) and (
-                            ((db[0] == size or db[1] == size) and cb[j] != 0) or (
-                            (db[0] == 0 or db[1] == 0) and cb[j] != N)):
-                        if cb[j] == size:
-                            matriz[i][j] = 1
-                        else:
-                            matriz[i][j] = 0
+                    #if ((qb[get_quadrant(size,i + 1, j + 1)] != 0 and cb[j] == size) or (
+                    #        qb[get_quadrant(size,i + 1, j + 1)] == 0 and cb[j] != size)) and (
+                    #        ((db[0] == size or db[1] == size) and cb[j] != 0) or (
+                    #        (db[0] == 0 or db[1] == 0) and cb[j] != N)):
+                    if cb[j] == size:
+                        matriz[i][j] = 1
                     else:
-                        return False
+                        matriz[i][j] = 0
+                    #else:
+                    #    return False
             else:
                 return False
 
@@ -182,46 +110,46 @@ def pre_processamento(matriz, size, lb, cb, lt, ct, qb, db):
                     for j in range(size):
                         if (qb[i] == size):
                             if (i == 0):
-                                if get_quadrant(k + 1, j + 1) == 0:
+                                if get_quadrant(size,k + 1, j + 1) == 0:
                                     matriz[k][j] = 1
-                                if get_quadrant(j + 1, i + 1) == 0:
+                                if get_quadrant(size,j + 1, i + 1) == 0:
                                     matriz[j][k] = 1
 
                             elif (i == 1):
-                                if get_quadrant(k + 1, j + 1) == 1:
+                                if get_quadrant(size,k + 1, j + 1) == 1:
                                     matriz[k][j] = 1
-                                if get_quadrant(j + 1, k + 1) == 1:
+                                if get_quadrant(size,j + 1, k + 1) == 1:
                                     matriz[j][k] = 1
                             elif (i == 2):
-                                if get_quadrant(k + 1, j + 1) == 2:
+                                if get_quadrant(size,k + 1, j + 1) == 2:
                                     matriz[k][j] = 1
-                                if get_quadrant(j + 1, k + 1) == 2:
+                                if get_quadrant(size,j + 1, k + 1) == 2:
                                     matriz[j][k] = 1
                             elif (i == 3):
-                                if get_quadrant(k + 1, j + 1) == 3:
+                                if get_quadrant(size,k + 1, j + 1) == 3:
                                     matriz[k][j] = 1
-                                if get_quadrant(j + 1, k + 1) == 3:
+                                if get_quadrant(size,j + 1, k + 1) == 3:
                                     matriz[j][k] = 1
                         elif (qb[i] == 0):
                             if (i == 0):
-                                if get_quadrant(k + 1, j + 1) == 0:
+                                if get_quadrant(size,k + 1, j + 1) == 0:
                                     matriz[k][j] = 0
-                                if get_quadrant(j + 1, k + 1) == 0:
+                                if get_quadrant(size,j + 1, k + 1) == 0:
                                     matriz[j][k] = 0
                             elif (i == 1):
-                                if get_quadrant(k + 1, j + 1) == 1:
+                                if get_quadrant(size,k + 1, j + 1) == 1:
                                     matriz[k][j] = 0
-                                if get_quadrant(j, k) == 1:
+                                if get_quadrant(size,j+1, k+1) == 1:
                                     matriz[j][k] = 0
                             elif (i == 2):
-                                if get_quadrant(k + 1, j + 1) == 2:
+                                if get_quadrant(size,k + 1, j + 1) == 2:
                                     matriz[k][j] = 0
-                                if get_quadrant(j + 1, k + 1) == 2:
+                                if get_quadrant(size,j + 1, k + 1) == 2:
                                     matriz[j][k] = 0
                             elif (i == 3):
-                                if get_quadrant(k + 1, j + 1) == 3:
+                                if get_quadrant(size,k + 1, j + 1) == 3:
                                     matriz[k][j] = 0
-                                if get_quadrant(j + 1, k + 1) == 3:
+                                if get_quadrant(size,j + 1, k + 1) == 3:
                                     matriz[j][k] = 0
         else:
             return False
@@ -261,6 +189,18 @@ def pre_processamento(matriz, size, lb, cb, lt, ct, qb, db):
                 else:
                     return False
 
+    if lb[size-1] == 0:
+        count = 1
+        c = size-2
+        while lb[c] == 0:
+            count +=1
+            c -=1
+        for f in range(size):
+            if cb[f] == size - count:
+                for k in range(size-count):
+                    matriz[k][f] = 1
+
+
 
 
 def backtrack_qr_codes(size, line, column, num_black_each_line, num_black_each_column, lt, ct, qb, db):
@@ -274,41 +214,52 @@ def backtrack_qr_codes(size, line, column, num_black_each_line, num_black_each_c
     qb_diff=[0]*4
     db_diff=[0]*2
 
-
-
-
     if pre_processamento(matrix, size, num_black_each_line, num_black_each_column, lt, ct, qb, db) == False:
         return matrix_to_print, count_res
+        #print("fhfh")
     def count_matrix_(matrix):
         for i in range(size):
             for j in range(size):
                 if matrix[i][j] == 1:
                     num_black_line_diff[i] += 1
                     num_black_column_diff[j] += 1
-                    qb_diff[get_quadrant(i + 1, j + 1)] += 1
-                    if (get_diagonal(i + 1, j + 1) != -1):
+                    qb_diff[get_quadrant(size,i + 1, j + 1)] += 1
+                    if (get_diagonal(size,i + 1, j + 1) != -1):
                         if j == N - i - 1 and i == j:
                             db_diff[0] += 1
                             db_diff[1] += 1
                         else:
-                            db_diff[get_diagonal(i + 1, j + 1)] += 1
+                            db_diff[get_diagonal(size,i + 1, j + 1)] += 1
 
 
     count_matrix_(matrix)
+    #print(matrix)
 
     def check_qr_code(line, column,num_black_line_diff,num_black_column_diff,lt_diff,ct_diff,qb_diff,db_diff):
         nonlocal matrix, matrix_to_print, count_res
         #print(matrix)
+        if line < size and lt[line] == 0:
+            check_qr_code(line + 1, 0, num_black_line_diff, num_black_column_diff, lt_diff, ct_diff, qb_diff, db_diff)
+            return True
+
         if line == size:
+            ''''
+            print_qr_code(matrix)
+            print(num_black_line_diff)
+            print(num_black_column_diff)
+            print(qb_diff)
+            print(db_diff)
+            '''
             for f in range(size):
                 count = 0
                 for i in range(size):
                     if i + 1 <= size - 1 and ((matrix[i][f] == 1 and matrix[i + 1][f] == 0) or (
                             matrix[i][f] == 0 and matrix[i + 1][f] == 1)):
                         count += 1
+                #print(count,ct[f])
                 if count != ct[f]:
                     return False
-
+            #print_qr_code(matrix)
             if num_black_line_diff == num_black_each_line and num_black_column_diff == num_black_each_column and qb_diff == qb and db_diff == db:
                 matrix_to_print =[row[:] for row in matrix] # deep copy matrix
                 #print(matrix)
@@ -318,6 +269,7 @@ def backtrack_qr_codes(size, line, column, num_black_each_line, num_black_each_c
             #print(num_black_column_diff)
             #print(qb_diff)
             #print(db_diff)
+            #count_res += 1
             #print_qr_code(matrix)
             return False
 
@@ -332,8 +284,8 @@ def backtrack_qr_codes(size, line, column, num_black_each_line, num_black_each_c
 
         if (line < size and num_black_line_diff[line] > num_black_each_line[line]) or (column < size and
                 num_black_column_diff[column] > num_black_each_column[column]) or (
-                qb_diff[get_quadrant(line+1, column+1)] > qb[get_quadrant(line+1, column+1)]) or (get_diagonal(line+1,column+1)!= -1 and
-                db_diff[get_diagonal(line+1, column+1)] > db[get_diagonal(line+1, column+1)]):
+                qb_diff[get_quadrant(size,line+1, column+1)] > qb[get_quadrant(size,line+1, column+1)]) or (get_diagonal(size,line+1,column+1)!= -1 and
+                db_diff[get_diagonal(size,line+1, column+1)] > db[get_diagonal(size,line+1, column+1)]) or (column == N-line-1 and line == column and db_diff > db):
             #print(line < size and num_black_line_diff[line] > num_black_each_line[line],column < size and num_black_column_diff[column] > num_black_each_column[column])
             #print(qb_diff[get_quadrant(line+1, column+1)] > qb[get_quadrant(line+1, column+1)],get_diagonal(line+1,column+1)!= -1 and
                 #db_diff[get_diagonal(line+1, column+1)] > db[get_diagonal(line+1, column+1)])
@@ -350,6 +302,8 @@ def backtrack_qr_codes(size, line, column, num_black_each_line, num_black_each_c
                     count += 1
             if count != lt[line]:
                 return False
+            if num_black_line_diff[line] != num_black_each_line[line]:
+                return False
             check_qr_code(line + 1, 0,num_black_line_diff,num_black_column_diff,lt_diff,ct_diff,qb_diff,db_diff)
             return True
 
@@ -359,137 +313,55 @@ def backtrack_qr_codes(size, line, column, num_black_each_line, num_black_each_c
 
         num_black_line_diff[line] += 1
         num_black_column_diff[column] += 1
-        qb_diff[get_quadrant(line+1, column+1)] += 1
-        if(get_diagonal(line+1,column+1)!=-1):
-            if column == N-line-1 and line == column:
-                db_diff[0] +=1
-                db_diff[1] +=1
-            else:
-                db_diff[get_diagonal(line+1, column+1)] += 1
+
+        if line+1 <= math.floor(size / 2) and column+1 > math.floor(size / 2):
+            qb_diff[0] += 1
+        elif line+1 <= math.floor(size / 2) and column+1 <= math.floor(size / 2):
+            qb_diff[1] += 1
+        elif line+1 > math.floor(size / 2) and column+1 <= math.floor(size / 2):
+            qb_diff[2] += 1
+        else:
+            qb_diff[3] += 1
+
+        #qb_diff[get_quadrant(size,line+1, column+1)] += 1
+
+        if column+1 == size-line+1-1 and line == column:
+            db_diff[0] +=1
+            db_diff[1] +=1
+        else:
+            if column == line:
+                db_diff[0] += 1
+            elif column+1 == size-line+1-1:
+                db_diff[1] += 1
 
         matrix[line][column] = 1
         check_qr_code(line, column + 1,num_black_line_diff,num_black_column_diff,lt_diff,ct_diff,qb_diff,db_diff)
         matrix[line][column] = -1
         num_black_line_diff[line] -= 1
         num_black_column_diff[column] -= 1
-        qb_diff[get_quadrant(line+1, column+1)] -= 1
-        if(get_diagonal(line+1, column+1)!=-1):
-            if column == N-line-1 and line == column:
-                db_diff[0] -= 1
-                db_diff[1] -= 1
-            else:
-                db_diff[get_diagonal(line+1, column+1)] -= 1
+        if line +1<= math.floor(size / 2) and column +1> math.floor(size / 2):
+            qb_diff[0] -= 1
+        elif line +1<= math.floor(size / 2) and column +1<= math.floor(size / 2):
+            qb_diff[1] -= 1
+        elif line +1> math.floor(size / 2) and column +1<= math.floor(size / 2):
+            qb_diff[2] -= 1
+        else:
+            qb_diff[3] -= 1
 
+        # qb_diff[get_quadrant(size,line+1, column+1)] += 1
+
+        if column +1== size - line+1 - 1 and line == column:
+            db_diff[0] -= 1
+            db_diff[1] -= 1
+        else:
+            if column == line:
+                db_diff[0] -= 1
+            elif column +1== size - line+1 - 1:
+                db_diff[1] -= 1
         matrix[line][column] = 0
         check_qr_code(line, column + 1,num_black_line_diff,num_black_column_diff,lt_diff,ct_diff,qb_diff,db_diff)
         matrix[line][column] = -1
         return False
-
-
-
-
-    def check_full_matrix():
-        if check_full_black_each_line() and check_full_black_each_column() and check_black_each_diagonal() and check_full_color_trans_each_line() and check_full_color_trans_each_column() and check_full_black_each_quadrant():
-            return True
-        return False
-
-
-    def check_full_black_each_line():
-        for i in range(size):
-            count = 0
-            for j in range(size):
-                if matrix[i][j] == 1:
-                    count += 1
-            if count != num_black_each_line[i]:
-                return False
-        return True
-
-
-    def check_full_black_each_column():
-        for j in range(size):
-            count = 0
-            for i in range(size):
-                if matrix[i][j] == 1:
-                    count += 1
-            if count != num_black_each_column[j]:
-                return False
-        return True
-
-    def check_color_trans_each_line(row):
-        count = 0
-        for j in range(size):
-            if j + 1 <= size - 1 and ((matrix[row][j] == 1 and matrix[row][j+1] == 0) or (matrix[row][j] == 0 and matrix[row][j+1] == 1)):
-                count += 1
-        if count > lt[row]:
-            return False
-        return True
-
-    def check_full_color_trans_each_line():
-        for i in range(size):
-            count = 0
-            for j in range(size):
-                if j + 1 <= size - 1 and ((matrix[i][j] == 1 and matrix[i][j+1] == 0) or (matrix[i][j] == 0 and matrix[i][j+1] == 1)):
-                    count += 1
-            if count != lt[i]:
-                return False
-        return True
-
-    def check_color_trans_each_column(col):
-        count = 0
-        for i in range(size):
-            if i + 1 <= size - 1 and ((matrix[i][col] == 1 and matrix[i + 1][col] == 0) or (matrix[i][col] == 0 and matrix[i+1][col] == 1)):
-                count += 1
-        if count > ct[col]:
-            return False
-        return True
-
-    def check_full_color_trans_each_column():
-        for j in range(size):
-            count = 0
-            for i in range(size):
-                if i + 1 <= size - 1 and ((matrix[i][j] == 1 and matrix[i + 1][j] == 0) or (matrix[i][j] == 0 and matrix[i+1][j] == 1)):
-                    count += 1
-            if count != ct[j]:
-                return False
-        return True
-
-
-    def check_full_black_each_quadrant():
-        for q in range(4):
-            if not check_black_each_quadrant(q):
-                return False
-        return True
-
-    def check_black_each_quadrant(q):
-        #q = get_quadrant(line+1, column+1)
-        count = 0
-        for i in range(size):
-            for j in range(size):
-                if get_quadrant(i+1, j+1) == q and matrix[i][j] == 1:
-                    count += 1
-        if count > qb[q]:
-            return False
-        return True
-
-    def check_black_each_diagonal():
-        # check main diagonal
-        count = 0
-        for i in range(size):
-            if matrix[i][i] == 1:
-                count += 1
-        if count > db[0]:
-            return False
-
-        # check secondary diagonal
-        count = 0
-        for i in range(size):
-            if matrix[i][size - i - 1] == 1:
-                count += 1
-        if count > db[1]:
-            return False
-
-        return True
-
 
     check_qr_code(0, 0,num_black_line_diff,num_black_column_diff,lt_diff,ct_diff,qb_diff,db_diff)
     return matrix_to_print, count_res
