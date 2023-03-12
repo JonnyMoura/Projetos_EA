@@ -72,40 +72,38 @@ def pre_processamento(matriz, size, lb, cb, lt, ct, qb, db):
     for i in range(size):
         if lb[i] == size or lb[i] == 0:
             if lt[i] == 0:
+        
                 for j in range(size):
-                    #if ((qb[get_quadrant(size,i + 1, j + 1)] != 0 and lb[i] == size) or (
-                    #        qb[get_quadrant(size,i + 1, j + 1)] == 0 and lb[i] != size)) and (
-                    #        ((db[0] == size or db[1] == size) and lb[i] != 0) or (
-                    #        (db[0] == 0 or db[1] == 0) and lb[i] != N)):
-                    if lb[i] == size:
-                        matriz[i][j] = 1
+                    if ((((db[0] == size or db[1] == size) and lb[i] != 0) or (
+                        (db[0] == 0 or db[1] == 0) and lb[i] != N)) or (lb[i] == size or lb[i]==0)):
+                        
+                        if lb[i] == size:
+                            matriz[i][j] = 1
+                        else:
+                            matriz[i][j] = 0
                     else:
-                        matriz[i][j] = 0
-                    #else:
-                    #    return False
+                       return False
             else:
                 return False
-
+    
     for j in range(size):
         if cb[j] == size or cb[j] == 0:
             if ct[j] == 0:
                 for i in range(size):
-                    #if ((qb[get_quadrant(size,i + 1, j + 1)] != 0 and cb[j] == size) or (
-                    #        qb[get_quadrant(size,i + 1, j + 1)] == 0 and cb[j] != size)) and (
-                    #        ((db[0] == size or db[1] == size) and cb[j] != 0) or (
-                    #        (db[0] == 0 or db[1] == 0) and cb[j] != N)):
-                    if cb[j] == size:
-                        matriz[i][j] = 1
+                    if ((((db[0] == size or db[1] == size) and cb[j] != 0) or (
+                           (db[0] == 0 or db[1] == 0) and cb[j] != N)) or (cb[j] == size or cb[j]==0)):
+                        if cb[j] == size:
+                            matriz[i][j] = 1
+                        else:
+                            matriz[i][j] = 0
                     else:
-                        matriz[i][j] = 0
-                    #else:
-                    #    return False
+                       return False
             else:
                 return False
 
     for i in range(4):
         if 0 <= qb[i] <= (math.floor((size / 2) + 1)) ** 2:
-            if qb[i] == (math.floor(size / 2)) ** 2 or qb[i] == 0:
+            if qb[i] == (math.floor(size / 2)+1) ** 2 or qb[i] == 0:
                 for k in range(size):
                     for j in range(size):
                         if (qb[i] == size):
@@ -199,9 +197,79 @@ def pre_processamento(matriz, size, lb, cb, lt, ct, qb, db):
             if cb[f] == size - count:
                 for k in range(size-count):
                     matriz[k][f] = 1
-
-
-
+    elif lb[size-1] == size:
+        count = 1
+        c = size-2
+        while lb[c] == size:
+            count +=1
+            c -=1
+        for f in range(size):
+            if cb[f] == size - count:
+                for k in range(size-count):
+                    matriz[k][f] =0
+    
+    ''' elif lb[0] ==0:
+        count = 1
+        c = 1
+        while lb[c] == 0:
+            count +=1
+            c +=1
+        for f in range(size):
+            if cb[f] == size-count:
+                for k in range(count,size):
+                    matriz[k][f] =1
+    elif lb[0] ==size:
+        count = 1
+        c = 1
+        while lb[c] == 1:
+            count +=1
+            c +=1
+        for f in range(size):
+            if cb[f] == size-count:
+                for k in range(count,size):
+                    matriz[k][f] =1
+    
+    if cb[size-1] == 0:
+        count = 1
+        c = size-2
+        while cb[c] == 0:
+            count +=1
+            c -=1
+        for f in range(size):
+            if lb[f] == size - count:
+                for k in range(size-count):
+                    matriz[f][k] = 1
+    elif cb[size-1] == size:
+        count = 1
+        c = size-2
+        while cb[c] == 1:
+            count +=1
+            c -=1
+        for f in range(size):
+            if lb[f] == size - count:
+                for k in range(size-count):
+                    matriz[f][k] = 0
+    elif cb[0] ==0:
+        count = 1
+        c = 1
+        while cb[c] == 0:
+            count +=1
+            c +=1
+        for f in range(size):
+            if lb[f] == size-count:
+                for k in range(count,size):
+                    matriz[f][k] =1
+    
+    elif cb[0] ==size:
+        count = 1
+        c = 1
+        while cb[c] == 1:
+            count +=1
+            c +=1
+        for f in range(size):
+            if lb[f] == size-count:
+                for k in range(count,size):
+                    matriz[f][k] =0'''
 
 def backtrack_qr_codes(size, line, column, num_black_each_line, num_black_each_column, lt, ct, qb, db):
     matrix = [[-1] * size for _ in range(size)]  # matriz de zeros do tamanho especificado
@@ -380,7 +448,7 @@ def print_qr_code(matrix):
     top_row = corner + "-" * cols + corner
 
     # imprime a linha superior da matriz
-    print(top_row)
+    outln(top_row)
 
     # itera sobre as linhas da matriz e as imprime
     for i in range(rows):
@@ -393,13 +461,13 @@ def print_qr_code(matrix):
                 row_string += empty
 
         row_string += border
-        print(row_string)
+        outln(row_string)
 
     # cria a linha inferior da matriz
     bottom_row = corner + "-" * cols + corner
 
     # imprime a linha inferior da matriz
-    print(bottom_row)
+    outln(bottom_row)
 
 
 
@@ -418,18 +486,18 @@ if __name__ == "__main__":
                 db=list(map(int, readln().split()))
 
                 if(N<2 or N>30 or len(lb)!=N or len(cb)!=N or len(lt)!=N or len(ct)!=N or len(qb)!=4 or len(db)!=2):
-                    print("DEFECT: No QR Code generated.")
+                    outln("DEFECT: No QR Code generated.")
                 else:
                     
                     #print(is_valid_encoding(N, lb, cb, lt, ct, qb, db))
                     qrcode ,n_qr_codes = backtrack_qr_codes(N,0,0, lb, cb,lt,ct,qb,db)
                     if n_qr_codes == 1:
-                        print("VALID: 1 QR Code generated!")
+                        outln("VALID: 1 QR Code generated!")
                         print_qr_code(qrcode)
                     elif n_qr_codes > 1:
-                        print(f"INVALID: {n_qr_codes} QR Codes generated!")
+                        outln(f"INVALID: {n_qr_codes} QR Codes generated!")
                     elif n_qr_codes == 0:
-                        print("DEFECT: No QR Code generated!")
+                        outln("DEFECT: No QR Code generated!")
 
 
 
