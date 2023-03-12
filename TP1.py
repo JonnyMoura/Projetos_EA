@@ -204,11 +204,11 @@ def pre_processamento(matriz, size, lb, cb, lt, ct, qb, db):
             count +=1
             c -=1
         for f in range(size):
-            if cb[f] == size - count:
+            if cb[f] == count:
                 for k in range(size-count):
                     matriz[k][f] =0
     
-    ''' elif lb[0] ==0:
+    elif lb[0] ==0:
         count = 1
         c = 1
         while lb[c] == 0:
@@ -218,17 +218,18 @@ def pre_processamento(matriz, size, lb, cb, lt, ct, qb, db):
             if cb[f] == size-count:
                 for k in range(count,size):
                     matriz[k][f] =1
+
     elif lb[0] ==size:
         count = 1
         c = 1
-        while lb[c] == 1:
+        while lb[c] == size:
             count +=1
             c +=1
         for f in range(size):
-            if cb[f] == size-count:
+            if cb[f] == count:
                 for k in range(count,size):
-                    matriz[k][f] =1
-    
+                    matriz[k][f] =0
+
     if cb[size-1] == 0:
         count = 1
         c = size-2
@@ -239,14 +240,15 @@ def pre_processamento(matriz, size, lb, cb, lt, ct, qb, db):
             if lb[f] == size - count:
                 for k in range(size-count):
                     matriz[f][k] = 1
+
     elif cb[size-1] == size:
         count = 1
         c = size-2
-        while cb[c] == 1:
+        while cb[c] == size:
             count +=1
             c -=1
         for f in range(size):
-            if lb[f] == size - count:
+            if lb[f] == count:
                 for k in range(size-count):
                     matriz[f][k] = 0
     elif cb[0] ==0:
@@ -259,17 +261,16 @@ def pre_processamento(matriz, size, lb, cb, lt, ct, qb, db):
             if lb[f] == size-count:
                 for k in range(count,size):
                     matriz[f][k] =1
-    
     elif cb[0] ==size:
         count = 1
         c = 1
-        while cb[c] == 1:
+        while cb[c] == size:
             count +=1
             c +=1
         for f in range(size):
-            if lb[f] == size-count:
+            if lb[f] == count:
                 for k in range(count,size):
-                    matriz[f][k] =0'''
+                    matriz[f][k] =0
 
 def backtrack_qr_codes(size, line, column, num_black_each_line, num_black_each_column, lt, ct, qb, db):
     matrix = [[-1] * size for _ in range(size)]  # matriz de zeros do tamanho especificado
@@ -285,6 +286,8 @@ def backtrack_qr_codes(size, line, column, num_black_each_line, num_black_each_c
     if pre_processamento(matrix, size, num_black_each_line, num_black_each_column, lt, ct, qb, db) == False:
         return matrix_to_print, count_res
         #print("fhfh")
+    #print_qr_code(matrix)
+    #print(matrix)
     def count_matrix_(matrix):
         for i in range(size):
             for j in range(size):
