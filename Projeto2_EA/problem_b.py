@@ -21,34 +21,31 @@ def max_profit(prices, k, fee, day=0, shares=0, py=0):
 '''
 
 
-def max_profit(prices, k, fee, memo, day=0, shares=0, py=0):
+def max_profit(prices, k, fee):
+    n = len(prices)
+    dp = [[0 for _ in range(k + 1)] for _ in range(n)]
 
-    #if (day, shares) in memo:
-        #print("ll")
-    #    return memo[(day, shares)]
-    if day == len(prices):
-        #memo[(day, shares)] = py
-        if (day,shares) in memo:
-            print(memo[(day, shares)],py)
-        #print(py)
-        return py
-    # Não faz nada
-    py1 = max_profit(prices, k, fee, memo, day + 1, shares, py)
+    for j in range(k + 1):
+        dp[0][j] = -prices[0] * j - fee * j
 
-    # Compra ações
-    py2 = float('-inf')
-    for i in range(1, k - shares + 1):
-        if day == 0 or prices[day] < prices[day - 1]:
-            py2 = max(py2, max_profit(prices, k, fee, memo, day + 1, shares + i, py - prices[day] * i - fee * i))
+    for i in range(1, n):
+        for j in range(k + 1):
+            # Não faz nada
+            #py1 = dp[i - 1][j]
 
-    # Vende ações
-    py3 = float('-inf')
-    for i in range(1, shares + 1):
-        py3 = max(py3, max_profit(prices, k, fee, memo, day + 1, shares - i, py + prices[day] * i))
+            # Compra ações
+            py2 = dp[i - 1][j]
+            for m in range(1, j + 1):
+                py2 = max(py2, dp[i - 1][j - m] - prices[i] * m - fee * m)
 
-    memo[(day, shares)] = max(py1, py2, py3)
-    print(day,shares)
-    return memo[(day, shares)]
+            # Vende ações
+            py3 = dp[i - 1][j]
+            for m in range(1, k - j + 1):
+                py3 = max(py3, dp[i - 1][j + m] + prices[i] * m)
+
+            dp[i][j] = max( py2, py3)
+    #print(dp)
+    return dp[n - 1][0]
 
 
 if __name__ == "__main__":
@@ -59,9 +56,9 @@ if __name__ == "__main__":
         shares = (list(map(int, input().split())))
         #print(len(shares))
         dp = {}
-        profit = max_profit(shares, K, R,dp, 0, 0, 0)
+        profit = max_profit(shares, K, R)
         print(profit)
 
-    memo = {}
+    #memo = {}
 
     #print("best = ",best)
