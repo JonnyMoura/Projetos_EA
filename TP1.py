@@ -11,35 +11,49 @@ def outln(n):
 
 
 def is_valid_encoding(N, lb, cb, lt, ct, qb, db):
-    # Check if the encoding is valid and can be decoded into a QR code
-    ''''
+    size = len(lb)
+    lw = [size - lb[i] for i in range(size)]  # NUMERO DE BRANCOS POR LINHA
+    cw = [size - cb[i] for i in range(size)]  # NUMERO DE BRANCOS POR COLUNA
+
+    for i in range(len(lt)):
+        min_lb = lt[i] // 2
+        max_lb = size - lt[i] // 2
+
+        min_cb = ct[i] // 2
+        max_cb = size - ct[i] // 2
+
+        if lt[i] == 0:  # LINHA TODA PRETA OU TODA BRANCA
+            if lb[i] != size and lw[i] != size:
+                # print("1")
+                return False
+        elif lt[i] % 2 != 0 and (lb[i] < lt[i] // 2 or lw[i] < lt[i] // 2):
+            # print("2")
+            return False
+        elif lt[i] % 2 == 0 and (lb[i] < min_lb or lb[i] > max_lb):
+            # print("3")
+            return False
+
+        if ct[i] == 0:  # COLUNA TODA PRETA OU TODA BRANCA
+            if cb[i] != size and cw[i] != size:
+                # print("4")
+                return False
+        elif ct[i] % 2 != 0 and (cb[i] < ct[i] // 2 or cw[i] < ct[i] // 2):
+            # print("5")
+            return False
+        elif ct[i] % 2 == 0 and (cb[i] < min_cb or cb[i] > max_cb):
+            # print("6")
+            return False
+
+    # Check if the sum of black cells in lines and columns are equal
     if sum(lb) != sum(cb):
-        return False
-    '''''
-    # Verifica se o número de células pretas em cada linha e coluna é válido
-    for j in range(N):
-        if lb[j] > N or cb[j] > N or lb[j] + cb[j] > 2 * N:
-            return False
-
-    # Verifica se o número de transições de cor em cada linha e coluna é válido
-    for j in range(N):
-        if lt[j] > N - 1 or ct[j] > N - 1:
-            return False
-
-    # Verifica se o número de células pretas em cada quadrante e diagonal é válido
-    q_sum = [qb[0] + qb[1], qb[1] + qb[2], qb[2] + qb[3], qb[3] + qb[0]]
-    if any(q_sum[i] > N * (N - 1) / 4 or q_sum[i] + db[i % 2] > N * (N + 1) / 2 for i in range(4)):
+        # print("7")
         return False
 
-    # Verifica se o número total de células pretas é válido
-    total_blacks = sum(lb)
-    if total_blacks != N * (N - 1) / 2:
+    # Check if the number of color transitions in lines and columns are equal
+    if sum(qb) != sum(lb):  # or sum(qb) != sum(cb):
+        # print("8")
         return False
 
-    # Verifica se as restrições de adjacência são satisfeitas
-    for j in range(N - 1):
-        if lb[j] + lb[j + 1] + cb[j] + cb[j + 1] == 0 or lb[j] + lb[j + 1] + cb[j] + cb[j + 1] == 4:
-           return False
 
     return True
 
@@ -492,7 +506,8 @@ if __name__ == "__main__":
                     outln("DEFECT: No QR Code generated.")
                 else:
                     
-                    #print(is_valid_encoding(N, lb, cb, lt, ct, qb, db))
+                    if not is_valid_encoding(N, lb, cb, lt, ct, qb, db):
+                        outln("DEFECT: No QR Code generated!")
                     qrcode ,n_qr_codes = backtrack_qr_codes(N,0,0, lb, cb,lt,ct,qb,db)
                     if n_qr_codes == 1:
                         outln("VALID: 1 QR Code generated!")
