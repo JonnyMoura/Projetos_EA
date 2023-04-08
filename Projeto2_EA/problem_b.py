@@ -19,6 +19,16 @@ def max_profit(prices, k, fee, day=0, shares=0, py=0):
 
     return max(py1, py2, py3)
 '''
+from sys import stdin, stdout
+
+
+def readln():
+    return stdin.readline().rstrip()
+
+
+def outln(n):
+    stdout.write(str(n))
+    stdout.write("\n")
 
 
 def max_profit(prices, k, fee):
@@ -49,7 +59,7 @@ def max_profit(prices, k, fee):
 
 
 if __name__ == "__main__":
-    task = int(input())
+    task = int(readln())
     N, D, K, R = map(int, input().split())
 
     for i in range(N):
