@@ -5,7 +5,7 @@ using namespace std;
 
 const int MOD = 1e9 + 7;
 
-void max_profit(vector<int>& prices, int k, int fee, int task) {
+long long int max_profit(vector<int>& prices, int k, int fee, int task) {
     int n = prices.size();
     vector<vector<long long int>> dp(n, vector<long long int>(2, 0));
     vector<int> path(n);
@@ -16,7 +16,9 @@ void max_profit(vector<int>& prices, int k, int fee, int task) {
         dp[i][0] = max(dp[i - 1][0], dp[i - 1][1] - prices[i] * k);
         dp[i][1] = max(dp[i - 1][1], dp[i - 1][0] + prices[i] * k - fee * k);
     }
-    cout << dp[n-1][1] << endl;
+    if (task == 2 || task ==1) {
+        cout << dp[n - 1][1] << endl;
+    }
     if (task == 2) {
         bool sell = false;
         for (int day = n - 1; day > 0; day--) {
@@ -39,6 +41,7 @@ void max_profit(vector<int>& prices, int k, int fee, int task) {
         }
         cout << endl;
     }
+    return dp[n-1][1];
 }
 
 
@@ -95,7 +98,7 @@ int main() {
             max_profit(prices, K, R, task);
         }
         else if (task == 3) {
-            long long int profit = max_profit(prices, K, R);
+            long long int profit = max_profit(prices, K, R,task);
             int schemes = count_schemes(prices, K, R, profit);
             cout << profit << " " << schemes << endl;
         }
