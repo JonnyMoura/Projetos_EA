@@ -5,10 +5,10 @@ using namespace std;
 
 
 
-long long int max_profit(vector<int>& prices, int k, int fee) {
+void max_profit(vector<int>& prices, int k, int fee, int task) {
     int n = prices.size();
     vector<vector<long long int>> dp(n, vector<long long int>(2, 0));
-
+    vector<int> path(n);
     dp[0][0] = -prices[0] * k;
     dp[0][1] = 0;
 
@@ -16,8 +16,29 @@ long long int max_profit(vector<int>& prices, int k, int fee) {
         dp[i][0] = max(dp[i - 1][0], dp[i - 1][1] - prices[i] * k);
         dp[i][1] = max(dp[i - 1][1], dp[i - 1][0] + prices[i] * k - fee * k);
     }
+    cout << dp[n-1][1] << endl;
+    if (task == 2) {
+        bool sell = false;
+        for (int day = n - 1; day > 0; day--) {
+            if (!sell && dp[day][1] > dp[day - 1][1]) {
+                path[day] = -k;
+                sell = true;
+                continue;
+            }
+            if (sell && dp[day][0] > dp[day - 1][0]) {
+                path[day] = k;
+                sell = false;
+            }
+        }
+        if (sell) {
+            path[0] = k;
+        }
 
-    return dp[n - 1][1];
+        for (int d = 0; d < n; d++) {
+            cout << path[d] << " ";
+        }
+        cout << endl;
+    }
 }
 
 int main() {
@@ -33,10 +54,9 @@ int main() {
          for (int k = 0; k < D; k++) {
                 cin >> prices[k];
           }
-         if (task == 1) {
-             long long int profit = max_profit(prices, K, R);
-             cout << profit << endl;
-         }
+         max_profit(prices, K, R,task);
+
+
       }
     
 
