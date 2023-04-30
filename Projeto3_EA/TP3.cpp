@@ -19,7 +19,7 @@ void Tarjan(int v) {
     t = t + 1;
     S.push(v);
     instack[v] = true;
-    for (int i = 0; i < G[v].size(); i++) {
+    for (int i = 1; i < G[v].size(); i += 2) {
         int w = G[v][i];
         if (dfs[w] == -1) {
             Tarjan(w);
@@ -45,41 +45,61 @@ void Tarjan(int v) {
 int main() {
     while (cin >> N) {
         if (N == 0) break;
+        int debt[N][N];
         t = 0, SCCcount = 0;
         memset(dfs, -1, sizeof dfs);
         memset(low, -1, sizeof low);
         memset(instack, false, sizeof instack);
-        for (int i = 1; i <= N; i++) {
-            G[i].clear();
+        for (int i = 0; i <= N; i++) {
+            if (i >= 1) {
+                G[i].clear();
+            }
             SCC[i].clear();
         }
-
+        memset(debt, 0, sizeof debt);
         for (int i = 1; i <= N; i++) {
             int a;
             cin >> a;
             int b;
+            int count = 0;
             while (cin >> b) {
                 if (b == 0) break;
                 G[a].push_back(b);
+                if(count % 2 != 0){
+                    debt[a-1][b-1] = G[a][count-1];
+                }
+                count++;
             }
         }
+
 
         for (int i = 1; i <= N; i++) {
             if (dfs[i] == -1) {
                 Tarjan(i);
             }
         }
+        /*
+        cout << "-------------";
+        for (int i = 0; i < N; i++){
+            for (int j = 0; j < N ; j++) {
+                cout << debt[i][j] << " ";
+            }
+            cout << "\n";
+        }
+        cout << "------------";
+        cout << SCCcount << " ";
 
         if (SCCcount == 1) {
             cout << "No cluster\n";
             continue;
         }
+
         memset(indeg, 0, sizeof indeg);
         memset(outdeg, 0, sizeof outdeg);
         for (int i = 0; i < SCCcount; i++) {
             for (int j = 0; j < SCC[i].size(); j++) {
                 int u = SCC[i][j];
-                for (int k = 0; k < G[u].size(); k++) {
+                for (int k = 1; k < G[u].size(); k+=2) {
                     int v = G[u][k];
                     if (SCCid[u] != SCCid[v]) {
                         indeg[SCCid[v]]++;
@@ -100,6 +120,39 @@ int main() {
             result = 0;
         }
         cout << result << endl;
+
+        sum_cluster = 0;
+        for (int i = 0; i < SCCcount ; i++) {
+            int sum_local = 0;
+            for (int j = 1; j < N ; j++){
+                for (int k = 0; k < G[j].size(); k += 2){
+                    if(j == SCC[i][])
+                }
+            }
+        }
+         */
+        if (SCCcount == N) {
+            cout << "No cluster\n";
+        } else {
+            int ans = 0;
+            for (int i = 0; i < SCCcount; i++) {
+                if (SCC[i].size() >= 2) {
+                    int sum = 0;
+                    for (int j = 0; j < SCC[i].size(); j++) {
+                        int u = SCC[i][j];
+                        for(int k = 0; k < N; k++){
+                            sum += debt[k][u-1] - debt[u-1][k];
+                        }
+                    }
+                    ans = max(ans, sum);
+                }
+            }
+            cout << ans;
+        }
+
+
+
+
     }
     return 0;
 }
