@@ -44,6 +44,7 @@ void Tarjan(int v) {
 
 int main() {
     while (cin >> N) {
+        //cout << "entrei" << endl;
         if (N == 0) break;
         int debt[N][N];
         t = 0, SCCcount = 0;
@@ -130,27 +131,27 @@ int main() {
                 }
             }
         }
-         */
+        */
         if (SCCcount == N) {
             cout << "No cluster\n";
         } else {
-            int ans = 0;
+            int maior_cluster = 0;
+            int id = -1;
             for (int i = 0; i < SCCcount; i++) {
-                if (SCC[i].size() >= 2) {
-                    int sum = 0;
-                    for (int j = 0; j < SCC[i].size(); j++) {
-                        int u = SCC[i][j];
-                        for(int k = 0; k < N; k++){
-                            sum += debt[k][u-1] - debt[u-1][k];
-                        }
-                    }
-                    ans = max(ans, sum);
+                if (SCC[i].size() >= maior_cluster) {
+                    maior_cluster = SCC[i].size();
+                    id = i;
                 }
             }
-            cout << ans;
+            int sum = 0;
+            for (int j = 0; j < SCC[id].size(); j++) {
+                int u = SCC[id][j];
+                for(int k = 0; k < N; k++){
+                    sum += debt[k][u-1] - debt[u-1][k];
+                }
+            }
+            cout << sum << endl;
         }
-
-
 
 
     }
