@@ -46,7 +46,8 @@ int main() {
     while (cin >> N) {
         //cout << "entrei" << endl;
         if (N == 0) break;
-        int debt[N][N];
+        int dim=N;
+        int debt[dim][dim];
         t = 0, SCCcount = 0;
         memset(dfs, -1, sizeof dfs);
         memset(low, -1, sizeof low);
