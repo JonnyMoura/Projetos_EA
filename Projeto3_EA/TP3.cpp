@@ -87,21 +87,23 @@ int main() {
             int ans = 0;
             for (int i = 0; i < SCCcount; i++) {
                 int sum = 0;
-                for (int u : SCC[i]) {
+                if (SCC[i].size() > 1) {
+                    for (int u : SCC[i]) {
+                        //cout << u << "-";
+                        for (int k = 0; k < N; k++) {
+                            sum += debt[k][u - 1] - debt[u - 1][k];
+                        }
 
-                    for (int k = 0; k < N; k++) {
-                        sum += debt[k][u - 1] - debt[u - 1][k];
                     }
-
-                }
-                int sum_pos = max(abs(sum),abs(ans));
-                if (abs(sum) == abs(ans)){
-                    ans = abs(sum);
-                }
-                else if (sum_pos == abs(sum)){
-                    ans = sum;
-                }else if (sum_pos == abs(ans)) {
-                    ans = ans;
+                    //cout << sum << endl;
+                    int sum_pos = max(abs(sum), abs(ans));
+                    if (abs(sum) == abs(ans)) {
+                        ans = abs(sum);
+                    } else if (sum_pos == abs(sum)) {
+                        ans = sum;
+                    } else if (sum_pos == abs(ans)) {
+                        ans = ans;
+                    }
                 }
                 //cout << sum << endl;
             }
