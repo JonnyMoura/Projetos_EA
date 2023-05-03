@@ -11,7 +11,7 @@ int N, t = 0, SCCcount = 0;
 vector<int> G[MAXN];
 vector<int> SCC[MAXN];
 stack<int> S;
-int dfs[MAXN], low[MAXN], SCCid[MAXN], indeg[MAXN], outdeg[MAXN];
+int dfs[MAXN], low[MAXN];
 bool instack[MAXN];
 
 void Tarjan(int v) {
@@ -35,7 +35,7 @@ void Tarjan(int v) {
             w = S.top();
             S.pop();
             instack[w] = false;
-            SCCid[w] = SCCcount;
+            //SCCid[w] = SCCcount;
             SCC[SCCcount].push_back(w);
         } while (w != v);
         SCCcount++;
@@ -50,11 +50,11 @@ int main() {
         memset(dfs, -1, sizeof dfs);
         memset(low, -1, sizeof low);
         memset(instack, false, sizeof instack);
-        for (int i = 0; i <= N; i++) {
-            if (i >= 1) {
-                G[i].clear();
-            }
+        for (int i = 0; i < N; i++) {
             SCC[i].clear();
+        }
+        for (int i = 1; i <= N; i++) {
+            G[i].clear();
         }
         for_each(debt.begin(), debt.end(), [&](auto& row) { row.assign(N, 0); });
         for (int i = 1; i <= N; i++) {
@@ -67,6 +67,7 @@ int main() {
                 G[a].push_back(b);
                 if (count % 2 != 0) {
                     debt[a - 1][b - 1] = G[a][count - 1];
+                    //cout << count << "--ct"<<endl;
                 }
                 count++;
             }
@@ -78,29 +79,43 @@ int main() {
                 Tarjan(i);
             }
         }
+
         if (SCCcount == N) {
-            cout << "No cluster\n";
+            cout << "No cluster" << endl;
         }
         else {
-            size_t maior_cluster = 0;
-            int id = -1;
+            int ans = 0;
             for (int i = 0; i < SCCcount; i++) {
-                if (SCC[i].size() >= maior_cluster) {
-                    maior_cluster = SCC[i].size();
-                    id = i;
-                }
-            }
-            int sum = 0;
-            for (int j = 0; j < SCC[id].size(); j++) {
+                int sum = 0;
+                for (int u : SCC[i]) {
 
-                int u = SCC[id][j];
+                    for (int k = 0; k < N; k++) {
+                        sum += debt[k][u - 1] - debt[u - 1][k];
+                    }
+
+                }
+                int sum_pos = max(abs(sum),abs(ans));
+                if (abs(sum) == abs(ans)){
+                    ans = abs(sum);
+                }
+                else if (sum_pos == abs(sum)){
+                    ans = sum;
+                }else if (sum_pos == abs(ans)) {
+                    ans = ans;
+                }
+                //cout << sum << endl;
+            }
+            /*
+            int sum = 0;
+            for (int u : SCC[id]) {
 
                 for (int k = 0; k < N; k++) {
                     sum += debt[k][u - 1] - debt[u - 1][k];
                 }
 
             }
-            cout << sum << endl;
+             */
+            cout << ans << endl;
         }
 
 
